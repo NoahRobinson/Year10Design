@@ -60,7 +60,7 @@ def readfile():
     return fdata
 
 def writetofile(text):
-    f = open("exchangeapi.html", "w+")
+    f = open("exchangeaspi.html", "w+")
     f.write(text)
     f.close()
 
