@@ -1,0 +1,176 @@
+<html>
+   
+    <head>
+
+        <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+       
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+       
+        <style>
+            
+            .nav-wrapper {
+                background-color: darkred;
+            }
+            
+        </style>
+       
+    </head>
+   
+    <body>
+       
+   
+    <!-- HERE IS THE JAVASCRIPT TO CONNECT TO YOUR FIREBASE -->
+    <script>
+        // Your web app's Firebase configuration
+          var config = {
+            apiKey: "AIzaSyBA7EdW_m-Jhw-EJiJgs9zk6_ILfUXd4eU",
+            authDomain: "basic-8aa73.firebaseapp.com",
+            databaseURL: "https://basic-8aa73.firebaseio.com",
+            projectId: "basic-8aa73",
+            storageBucket: "basic-8aa73.appspot.com",
+            messagingSenderId: "196443737411",
+            appId: "1:196443737411:web:916b71518e06436743f3f6",
+            measurementId: "G-3P8WRYRQJ0"
+          };
+        firebase.initializeApp(config);
+               
+        // Check to see if you are logged in
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user == null) {
+                document.getElementById("uname").innerHTML = "not logged in";
+                return;
+            } else {
+                userId = user.uid;
+                username = user.displayName; // you can also get .displayName, .photoURL, .email
+                userphoto = user.photoURL;
+                document.getElementById("uname").innerHTML = username; // display Google uid on page
+                document.getElementById("uphoto").innerHTML = "<img src='" + userphoto + "' width='50' class='circle' style='padding-top:6'>";
+                getData();
+            } // end user null check
+        }); // end check auth state
+       
+       // HERE IS THE FUNCTION TO SHOW HOW TO GET USER DATA
+       function getData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/tweets/' + userId).once('value', function(snapshot) {
+               if (snapshot.val == null) {
+                   return;
+               }
+               mydatadiv = document.getElementById("info");
+               myhtml = snapshot.val();
+               keys = Object.keys(myhtml);
+               values = Object.values(myhtml);
+               myhtml = ""
+               for (i=0;i<keys.length;i++){
+                   myhtml = myhtml + "<img src='" + userphoto + "' width='50'>" + values[i].tweet + "<br>";
+               }
+               mydatadiv.innerHTML = myhtml;
+               console.log(snapshot.val());
+           });
+
+       }
+       
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       function setData() {
+           var userId = document.getElementById("uid").innerHTML;
+           var js_time = Date.now();
+           firebase.database().ref('/tweets/' + userId).set({tweet:"Set over-writes", time: js_time});
+       }
+       
+       // HERE IS THE FUNCTION TO SHOW HOW TO SET/OVERWRITE USER DATA
+       function updateData() {
+           var userId = document.getElementById("uid").innerHTML;
+           firebase.database().ref('/tweets/' + userId).update({tweet:"Update replaces data, but will leave non replaced data as is"});
+       }
+         
+        // HERE IS THE FUNCTION TO SHOW HOW TO PUSH/ADD NEW USER DATA TO EXISTING DATABASE
+        function pushData() {
+            var userId = document.getElementById("uid").innerHTML;
+            var inputval = document.getElementById("myinput").value; //get value
+            var js_time = Date.now();
+            var tweetid = firebase.database().ref('tweets/' + userId + "/").push({tweet: inputval, time: js_time});
+            document.getElementById("myinput").value = "";
+            getData();
+        }
+    
+
+        // HERE IS THE FUNCTION TO SHOW HOW TO REMOVE USER DATA FROM EXISTING DATABASE - BE CAREFUL!
+        function removeData() {
+            var tweetid = firebase.database().ref('tweets/' + userId + "/").remove();
+        }
+       
+        function signin() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithRedirect(provider).then(function(result) {
+                window.location.replace("fbtest.html");
+            });
+        }
+       
+        function encodeImageFileAsURL() {
+            var filesSelected = document.getElementById("inputFileToLoad").files;
+            if (filesSelected.length > 0) {
+                var fileToLoad = filesSelected[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function(fileLoadedEvent) {
+                    var srcData = fileLoadedEvent.target.result; document.getElementById("imgTest").innerHTML = "<img src='" + srcData + "' class='circle' width='100'/><br>";
+                    console.log(srcData);
+                }
+                fileReader.readAsDataURL(fileToLoad);
+            }
+        } // end function
+        
+        
+    </script>
+
+            <nav>
+                <div class="nav-wrapper">
+            
+                    
+                    <ul>
+                        <li><a href="#" onclick="signin()"><i class="material-icons"><div id="uphoto"></div></i></a></li>
+                        <li><div id="uname"></div></li>
+                    </ul>
+                    
+
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+
+                        <li><form>
+                            <div class="input-field">
+                                <input id="search" type="search" required>
+                                <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                                <i class="material-icons">close</i>
+                            </div>
+                        </form></li>
+                    </ul>
+                </div>
+            </nav>
+
+        <!--<h1 id="uid"></h1>-->
+       
+            <div id="imgTest"><br></div>
+            <input id="inputFileToLoad" type="file" onchange="encodeImageFileAsURL();" /><br>
+       
+        <div id="mydata"></div><br>
+           
+        <input id="myinput" type="text" placeholder="Write new blog...">
+        <button onclick="pushData()">Submit</button>
+        <button onclick="getData()">Get data</button>
+        <button onclick="setData()">Set data</button>
+        <button onclick="updateData()">Update data</button>
+        <button onclick="pushData()">Push data</button>
+        <button onclick="removeData()">Remove data</button>
+        <div id="info"></div> 
+       
+    </body>
+</html>
+
+<!--.catch(function(error) {
+            alert("Data could not be displayed." + errror);
+        });
+We have to put this in our code-->

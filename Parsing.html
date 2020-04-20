@@ -1,0 +1,52 @@
+<html>
+<head>
+<!-- HERE ARE YOUR FIREBASE and GOOGLE AUTHENICATION IMPORTS -->
+<script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+<body >
+<button onclick="signin()">Sign in</button>
+<button onclick="getData()">Get data</button>
+<div id="stuff"></div>
+</body>
+<script>
+userId = ""
+var config = {
+apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
+authDomain: "basic-d3556.firebaseapp.com",
+databaseURL: "https://basic-d3556.firebaseio.com",
+projectId: "basic-d3556",
+storageBucket: "basic-d3556.appspot.com",
+messagingSenderId: "1010614760359",
+appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
+measurementId: "G-62WRTET4D4"
+};
+firebase.initializeApp(config);
+firebase.auth().onAuthStateChanged(function(user) {
+if (user == null) {
+return;
+} else {
+userId = user.uid; // you can also ge
+} // end user null check
+}); // end check auth state
+function signin() {
+var provider = new firebase.auth.GoogleAuthProvider();
+firebase.auth().signInWithRedirect(provider).then(function(result) {
+window.location.replace("fbtest.html");
+});
+}
+function getData() {
+firebase.database().ref('/messages/').once('value', function(snapshot) {
+data = snapshot.val();
+myvals = Object.values(data);
+myhtml = "";
+for (i=0;i<myvals.length;i++){
+mydate = new Date(myvals[i]['timestamp']);
+myhtml = myhtml + myvals[i]['content'] + " " + mydate + "<br>";
+}
+document.getElementById("stuff").innerHTML = myhtml;
+});
+
+}
+</script>
+</html>

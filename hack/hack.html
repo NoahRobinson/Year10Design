@@ -1,0 +1,55 @@
+<html>
+
+    <head>
+    <!-- HERE ARE YOUR FIREBASE and GOOGLE AUTHENICATION IMPORTS -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    </head>
+    
+    <button onclick="signin()">Sign in</button>
+    <button onclick="spammy()">Spam data</button>
+    <button onclick="deletey()">Delete data</button>
+
+    <script>
+    
+        var config = {
+            apiKey: "AIzaSyAgxg8C3PTR-XOzOZdpyMGQVq9IBugOA3g",
+            authDomain: "basic-d3556.firebaseapp.com",
+            databaseURL: "https://basic-d3556.firebaseio.com",
+            projectId: "basic-d3556",
+            storageBucket: "basic-d3556.appspot.com",
+            messagingSenderId: "1010614760359",
+            appId: "1:1010614760359:web:818dfcc2f8be51401c7c82",
+            measurementId: "G-62WRTET4D4"
+          };
+        
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user == null) {
+                //document.getElementById("uid").innerHTML = "not logged in";
+                return;
+            } else {
+                userId = user.uid; // you can also get .displayName, .photoURL, .email
+                //document.getElementById("uid").innerHTML = userId; // display Google uid on page
+                
+            } // end user null check
+        }); // end check auth state
+    
+        function spammy() {
+
+            firebase.database().ref().push({garbage: "you suck"});
+        }
+
+        function deletey() {
+            firebase.database().ref().remove();
+        }
+        
+        function signin() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            
+            firebase.auth().signInWithRedirect(provider).then(function(result) { 
+                window.location.replace("fbtest.html");
+            });
+        }
+    </script>
+
+</html>
